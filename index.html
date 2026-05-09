@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Rifa - Gestión de Números</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .menu-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .menu-card .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .menu-card h3 {
+            color: #333;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .menu-card p {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .section {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-header h2 {
+            color: #333;
+            font-size: 1.8em;
+        }
+
+        .btn-back {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: #764ba2;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 6px;
+            color: #888;
+            font-size: 0.85em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 30px;
+            border-radius: 12px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-box.success {
+            display: block;
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .result-box.error {
+            display: block;
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .result-box.info {
+            display: block;
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            color: #0c5460;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loader.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .participant-info {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: none;
+        }
+
+        .participant-info.active {
+            display: block;
+        }
+
+        .participant-info h4 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row span:first-child {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-row span:last-child {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            min-width: 150px;
+        }
+
+        .stat-item .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-item .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .stat-item.available .stat-number { color: #28a745; }
+        .stat-item.taken .stat-number { color: #dc3545; }
+
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 10px;
+            margin-top: 25px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .number-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .number-cell.available {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .number-cell.taken {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #dc3545;
+            opacity: 0.5;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.8em; }
+            .menu-grid { grid-template-columns: 1fr; }
+            .section { padding: 25px; }
+            .numbers-grid { grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎰 Sistema de Rifa</h1>
+            <p>Gestión de participantes y números</p>
+        </div>
+
+        <!-- MENÚ PRINCIPAL -->
+        <div id="mainMenu">
+            <div class="menu-grid">
+                <div class="menu-card" onclick="showSection('registrarParticipante')">
+                    <div class="icon">📝</div>
+                    <h3>Registrar Participante</h3>
+                    <p>Registro completo con código, nombre, apellido y números seleccionados</p>
+                </div>
+                <div class="menu-card" onclick="showSection('agregarMasNumeros')">
+                    <div class="icon">➕</div>
+                    <h3>Agregar Más Números</h3>
+                    <p>Añadir números adicionales a un participante ya registrado</p>
+                </div>
+                <div class="menu-card" onclick="showSection('buscarPorNumero')">
+                    <div class="icon">🔍</div>
+                    <h3>Buscar por Número</h3>
+                    <p>Verificar quién tiene asignado un número específico</p>
+                </div>
+                <div class="menu-card" onclick="showSection('verDisponibles')">
+                    <div class="icon"></div>
+                    <h3>Números Disponibles</h3>
+                    <p>Ver todos los números disponibles y ocupados (1-500)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: REGISTRAR NUEVO PARTICIPANTE -->
+        <div id="secRegistrarParticipante" class="section">
+            <div class="section-header">
+                <h2>📝 Registrar Nuevo Participante</h2>
+                <button class="btn-back" onclick="goHome()">← Volver</button>
+            </div>
+
+            <div class="form-group">
+                <label for="regCodigo">Código del Estudiante *</label>
+                <input type="text" id="regCodigo" placeholder="Ej: 2B02">
+            </div>
+
+            <div class="form-group">
+                <label for="regNombre">Nombre *</label>
+                <input type="text" id="regNombre" placeholder="Ej: Juan">
+            </div>
+
+            <div class="form-group">
+                <label for="regApellido">Apellido *</label>
+                <input type="text" id="regApellido" placeholder="Ej: Pérez">
+            </div>
+
+            <div class="form-group">
+                <label for="regNumeros">Números Seleccionados *</label>
+                <input type="text" id="regNumeros" placeholder="Ej: 15, 23, 150">
+                <small>Separa los números con comas (ej: 15, 23, 150). Rango: 1-500</small>
+            </div>
+
+            <button class="btn-primary" onclick="registrarParticipante()">
+                ✅ Registrar Participante
+            </button>
+
+            <div class="loader" id="loaderRegistro">
+                <div class="spinner"></div>
+                <p>Registrando participante...</p>
+            </div>
+
+            <div class="result-box" id="resultRegistro"></div>
+        </div>
+
+        <!-- SECCIÓN: AGREGAR MÁS NÚMEROS -->
+        <div id="secAgregarMasNumeros" class="section">
+            <div class="section-header">
+                <h2>➕ Agregar Más Números</h2>
+                <button class="btn-back" onclick="goHome()">← Volver</button>
+            </div>
+
+            <!-- Paso 1: Buscar participante -->
+            <div id="step1BuscarParticipante">
+                <div class="form-group">
+                    <label for="buscarCodAgregar">Código del Participante</label>
+                    <input type="text" id="buscarCodAgregar" placeholder="Ej: 2B02">
+                </div>
+                <button class="btn-primary" onclick="buscarParticipanteParaAgregar()">
+                    🔍 Buscar Participante
+                </button>
+            </div>
+
+            <div class="loader" id="loaderBuscarParticipante">
+                <div class="spinner"></div>
+                <p>Buscando participante...</p>
+            </div>
+
+            <div class="result-box" id="resultBuscarParticipante"></div>
+
+            <!-- Paso 2: Agregar números -->
+            <div id="step2AgregarNumeros" style="display: none;">
+                <div class="participant-info active" id="participantInfo">
+                    <h4>👤 Participante Encontrado</h4>
+                    <div class="info-row">
+                        <span>Código:</span>
+                        <span id="partCodigo"></span>
+                    </div>
+                    <div class="info-row">
+                        <span>Nombre:</span>
+                        <span id="partNombre"></span>
+                    </div>
+                    <div class="info-row">
+                        <span>Números actuales:</span>
+                        <span id="partNumerosActuales"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nuevosNumeros">Nuevos Números a Agregar</label>
+                    <input type="text" id="nuevosNumeros" placeholder="Ej: 45, 89">
+                    <small>Separa los números con comas. Solo números disponibles.</small>
+                </div>
+
+                <button class="btn-primary" onclick="agregarNuevosNumeros()">
+                    ➕ Agregar Números
+                </button>
+
+                <div class="loader" id="loaderAgregarNumeros">
+                    <div class="spinner"></div>
+                    <p>Agregando números...</p>
+                </div>
+
+                <div class="result-box" id="resultAgregarNumeros"></div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: BUSCAR POR NÚMERO -->
+        <div id="secBuscarPorNumero" class="section">
+            <div class="section-header">
+                <h2>🔍 Buscar por Número</h2>
+                <button class="btn-back" onclick="goHome()">← Volver</button>
+            </div>
+
+            <div class="form-group">
+                <label for="numeroBuscar">Número a Buscar</label>
+                <input type="number" id="numeroBuscar" placeholder="Ej: 42" min="1" max="500">
+            </div>
+
+            <button class="btn-primary" onclick="buscarPorNumero()">
+                🔍 Buscar
+            </button>
+
+            <div class="loader" id="loaderBuscarNumero">
+                <div class="spinner"></div>
+                <p>Buscando...</p>
+            </div>
+
+            <div class="result-box" id="resultBuscarNumero"></div>
+        </div>
+
+        <!-- SECCIÓN: VER NÚMEROS DISPONIBLES -->
+        <div id="secVerDisponibles" class="section">
+            <div class="section-header">
+                <h2>🔢 Números Disponibles</h2>
+                <button class="btn-back" onclick="goHome()">← Volver</button>
+            </div>
+
+            <div class="loader" id="loaderDisponibles">
+                <div class="spinner"></div>
+                <p>Cargando números...</p>
+            </div>
+
+            <div class="stats-bar" id="statsBar" style="display: none;">
+                <div class="stat-item available">
+                    <div class="stat-number" id="statDisponibles">0</div>
+                    <div class="stat-label">Disponibles</div>
+                </div>
+                <div class="stat-item taken">
+                    <div class="stat-number" id="statOcupados">0</div>
+                    <div class="stat-label">Ocupados</div>
+                </div>
+            </div>
+
+            <div class="filter-bar" id="filterBar" style="display: none;">
+                <button class="filter-btn active" onclick="filterNumbers('all', this)">Todos</button>
+                <button class="filter-btn" onclick="filterNumbers('available', this)">Disponibles</button>
+                <button class="filter-btn" onclick="filterNumbers('taken', this)">Ocupados</button>
+            </div>
+
+            <div class="numbers-grid" id="numbersGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // 🔴 REEMPLAZA CON TU URL DE GOOGLE APPS SCRIPT
+        // ============================================
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyfulOjeSqz-KG5TvZM68SXduxTiAwi9WmMq_QP3zGQGV-DJCnGojMjPLIO8BzMh0am/exec';
+
+        // NAVEGACIÓN
+        function showSection(sectionName) {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            
+            const sectionMap = {
+                'registrarParticipante': 'secRegistrarParticipante',
+                'agregarMasNumeros': 'secAgregarMasNumeros',
+                'buscarPorNumero': 'secBuscarPorNumero',
+                'verDisponibles': 'secVerDisponibles'
+            };
+
+            const section = document.getElementById(sectionMap[sectionName]);
+            if (section) {
+                section.classList.add('active');
+            }
+
+            if (sectionName === 'verDisponibles') {
+                cargarNumerosDisponibles();
+            }
+        }
+
+        function goHome() {
+            document.getElementById('mainMenu').style.display = 'block';
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            resetAllForms();
+        }
+
+        function resetAllForms() {
+            document.querySelectorAll('input').forEach(i => i.value = '');
+            document.querySelectorAll('.result-box').forEach(r => {
+                r.className = 'result-box';
+                r.style.display = 'none';
+            });
+            document.querySelectorAll('.loader').forEach(l => l.classList.remove('active'));
+            document.getElementById('step2AgregarNumeros').style.display = 'none';
+            document.getElementById('step1BuscarParticipante').style.display = 'block';
+            document.getElementById('participantInfo').classList.remove('active');
+        }
+
+        // REGISTRAR NUEVO PARTICIPANTE CON NÚMEROS
+        async function registrarParticipante() {
+            const codigo = document.getElementById('regCodigo').value.trim();
+            const nombre = document.getElementById('regNombre').value.trim();
+            const apellido = document.getElementById('regApellido').value.trim();
+            const numerosInput = document.getElementById('regNumeros').value.trim();
+
+            if (!codigo || !nombre || !apellido || !numerosInput) {
+                showResult('resultRegistro', 'error', '⚠️', 'Campos incompletos', 'Por favor completa todos los campos obligatorios.');
+                return;
+            }
+
+            // Parsear números
+            const numeros = numerosInput.split(',').map(n => n.trim()).filter(n => n !== '');
+            
+            // Validar rango
+            for (let num of numeros) {
+                const numInt = parseInt(num);
+                if (isNaN(numInt) || numInt < 1 || numInt > 500) {
+                    showResult('resultRegistro', 'error', '⚠️', 'Número inválido', `El número "${num}" no está en el rango válido (1-500).`);
+                    return;
+                }
+            }
+
+            showLoader('loaderRegistro');
+            hideResult('resultRegistro');
+
+            try {
+                // Primero agregar el participante
+                const resParticipante = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'agregarParticipante',
+                        codigo: codigo,
+                        nombre: nombre,
+                        apellido: apellido
+                    })
+                });
+                const dataParticipante = await resParticipante.json();
+
+                if (!dataParticipante.exito) {
+                    hideLoader('loaderRegistro');
+                    showResult('resultRegistro', 'error', '❌', 'Error', dataParticipante.error);
+                    return;
+                }
+
+                // Ahora agregar cada número
+                let numerosAgregados = [];
+                let numerosFallidos = [];
+
+                for (let num of numeros) {
+                    const resNumero = await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'agregarNumero',
+                            codigo: codigo,
+                            numero: num
+                        })
+                    });
+                    const dataNumero = await resNumero.json();
+
+                    if (dataNumero.exito) {
+                        numerosAgregados.push(num);
+                    } else {
+                        numerosFallidos.push({numero: num, error: dataNumero.error});
+                    }
+                }
+
+                hideLoader('loaderRegistro');
+
+                // Construir mensaje
+                let mensaje = `<strong>${nombre} ${apellido}</strong> ha sido registrado exitosamente.<br><br>`;
+                
+                if (numerosAgregados.length > 0) {
+                    mensaje += `✅ Números asignados: <strong>${numerosAgregados.join(', ')}</strong><br>`;
+                }
+                
+                if (numerosFallidos.length > 0) {
+                    mensaje += `<br>⚠️ Números no asignados:<br>`;
+                    numerosFallidos.forEach(nf => {
+                        mensaje += `- ${nf.numero}: ${nf.error}<br>`;
+                    });
+                }
+
+                showResult('resultRegistro', 'success', '✅', 'Registro Exitoso', mensaje);
+
+                // Limpiar formulario si todo salió bien
+                if (numerosFallidos.length === 0) {
+                    document.getElementById('regCodigo').value = '';
+                    document.getElementById('regNombre').value = '';
+                    document.getElementById('regApellido').value = '';
+                    document.getElementById('regNumeros').value = '';
+                }
+
+            } catch (error) {
+                hideLoader('loaderRegistro');
+                showResult('resultRegistro', 'error', '⚠️', 'Error de Conexión', 'No se pudo conectar con la base de datos.');
+            }
+        }
+
+        // BUSCAR PARTICIPANTE PARA AGREGAR NÚMEROS
+        async function buscarParticipanteParaAgregar() {
+            const codigo = document.getElementById('buscarCodAgregar').value.trim();
+
+            if (!codigo) {
+                showResult('resultBuscarParticipante', 'error', '⚠️', 'Campo requerido', 'Ingresa un código de participante.');
+                return;
+            }
+
+            showLoader('loaderBuscarParticipante');
+            hideResult('resultBuscarParticipante');
+
+            try {
+                const res = await fetch(`${API_URL}?action=buscarCodigo&codigo=${encodeURIComponent(codigo)}`);
+                const data = await res.json();
+
+                hideLoader('loaderBuscarParticipante');
+
+                if (data.encontrado) {
+                    const p = data.participante;
+                    document.getElementById('partCodigo').textContent = p.codigo;
+                    document.getElementById('partNombre').textContent = `${p.nombre} ${p.apellido}`;
+                    document.getElementById('partNumerosActuales').textContent = 
+                        p.numeros.length > 0 ? p.numeros.join(', ') : 'Ninguno';
+                    
+                    document.getElementById('step1BuscarParticipante').style.display = 'none';
+                    document.getElementById('step2AgregarNumeros').style.display = 'block';
+                    document.getElementById('participantInfo').classList.add('active');
+                } else {
+                    showResult('resultBuscarParticipante', 'error', '❌', 'No encontrado', 
+                        `El código "${codigo}" no está registrado.`);
+                }
+            } catch (error) {
+                hideLoader('loaderBuscarParticipante');
+                showResult('resultBuscarParticipante', 'error', '⚠️', 'Error', 'No se pudo conectar con la base de datos.');
+            }
+        }
+
+        // AGREGAR NUEVOS NÚMEROS A PARTICIPANTE EXISTENTE
+        async function agregarNuevosNumeros() {
+            const codigo = document.getElementById('buscarCodAgregar').value.trim();
+            const numerosInput = document.getElementById('nuevosNumeros').value.trim();
+
+            if (!numerosInput) {
+                showResult('resultAgregarNumeros', 'error', '⚠️', 'Campo requerido', 'Ingresa al menos un número.');
+                return;
+            }
+
+            const numeros = numerosInput.split(',').map(n => n.trim()).filter(n => n !== '');
+
+            // Validar rango
+            for (let num of numeros) {
+                const numInt = parseInt(num);
+                if (isNaN(numInt) || numInt < 1 || numInt > 500) {
+                    showResult('resultAgregarNumeros', 'error', '⚠️', 'Número inválido', 
+                        `El número "${num}" no está en el rango válido (1-500).`);
+                    return;
+                }
+            }
+
+            showLoader('loaderAgregarNumeros');
+            hideResult('resultAgregarNumeros');
+
+            try {
+                let numerosAgregados = [];
+                let numerosFallidos = [];
+
+                for (let num of numeros) {
+                    const res = await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'agregarNumero',
+                            codigo: codigo,
+                            numero: num
+                        })
+                    });
+                    const data = await res.json();
+
+                    if (data.exito) {
+                        numerosAgregados.push(num);
+                    } else {
+                        numerosFallidos.push({numero: num, error: data.error});
+                    }
+                }
+
+                hideLoader('loaderAgregarNumeros');
+
+                let mensaje = '';
+                if (numerosAgregados.length > 0) {
+                    mensaje += `✅ Números agregados: <strong>${numerosAgregados.join(', ')}</strong><br>`;
+                }
+                
+                if (numerosFallidos.length > 0) {
+                    mensaje += `<br>⚠️ Números no agregados:<br>`;
+                    numerosFallidos.forEach(nf => {
+                        mensaje += `- ${nf.numero}: ${nf.error}<br>`;
+                    });
+                }
+
+                const tipoResultado = numerosAgregados.length > 0 && numerosFallidos.length === 0 ? 'success' : 
+                                      numerosAgregados.length > 0 ? 'info' : 'error';
+                
+                showResult('resultAgregarNumeros', tipoResultado, 
+                    numerosAgregados.length > 0 ? '✅' : '❌', 
+                    numerosAgregados.length > 0 ? 'Números Agregados' : 'Error', 
+                    mensaje);
+
+                if (numerosFallidos.length === 0) {
+                    document.getElementById('nuevosNumeros').value = '';
+                    // Actualizar información del participante
+                    const res = await fetch(`${API_URL}?action=buscarCodigo&codigo=${encodeURIComponent(codigo)}`);
+                    const data = await res.json();
+                    if (data.encontrado) {
+                        document.getElementById('partNumerosActuales').textContent = 
+                            data.participante.numeros.join(', ');
+                    }
+                }
+
+            } catch (error) {
+                hideLoader('loaderAgregarNumeros');
+                showResult('resultAgregarNumeros', 'error', '⚠️', 'Error', 'No se pudo conectar con la base de datos.');
+            }
+        }
+
+        // BUSCAR POR NÚMERO
+        async function buscarPorNumero() {
+            const numero = document.getElementById('numeroBuscar').value.trim();
+
+            if (!numero) {
+                showResult('resultBuscarNumero', 'error', '⚠️', 'Campo requerido', 'Ingresa un número.');
+                return;
+            }
+
+            showLoader('loaderBuscarNumero');
+            hideResult('resultBuscarNumero');
+
+            try {
+                const res = await fetch(`${API_URL}?action=buscarNumero&numero=${encodeURIComponent(numero)}`);
+                const data = await res.json();
+
+                hideLoader('loaderBuscarNumero');
+
+                if (data.encontrado) {
+                    const p = data.participante;
+                    showResult('resultBuscarNumero', 'success', '🏆', 'Número Encontrado', 
+                        `El número <strong>${numero}</strong> pertenece a:<br><br>
+                        <strong>${p.nombre} ${p.apellido}</strong><br>
+                        Código: ${p.codigo}<br>
+                        Todos sus números: ${p.numeros.join(', ')}`);
+                } else {
+                    showResult('resultBuscarNumero', 'info', 'ℹ️', 'Número Disponible', 
+                        `El número <strong>${numero}</strong> no está asignado. ¡Está disponible!`);
+                }
+            } catch (error) {
+                hideLoader('loaderBuscarNumero');
+                showResult('resultBuscarNumero', 'error', '⚠️', 'Error', 'No se pudo conectar con la base de datos.');
+            }
+        }
+
+        // CARGAR NÚMEROS DISPONIBLES
+        let allNumbersData = [];
+
+        async function cargarNumerosDisponibles() {
+            showLoader('loaderDisponibles');
+            document.getElementById('numbersGrid').innerHTML = '';
+            document.getElementById('statsBar').style.display = 'none';
+            document.getElementById('filterBar').style.display = 'none';
+
+            try {
+                const res = await fetch(`${API_URL}?action=todos`);
+                const data = await res.json();
+
+                hideLoader('loaderDisponibles');
+
+                const ocupados = new Set();
+                for (let p of data.participantes) {
+                    for (let n of p.numeros) {
+                        ocupados.add(parseInt(n));
+                    }
+                }
+
+                allNumbersData = [];
+                for (let i = 1; i <= 500; i++) {
+                    allNumbersData.push({ num: i, taken: ocupados.has(i) });
+                }
+
+                const disponibles = allNumbersData.filter(n => !n.taken).length;
+                const ocupadosCount = allNumbersData.filter(n => n.taken).length;
+
+                document.getElementById('statDisponibles').textContent = disponibles;
+                document.getElementById('statOcupados').textContent = ocupadosCount;
+                document.getElementById('statsBar').style.display = 'flex';
+                document.getElementById('filterBar').style.display = 'flex';
+
+                renderNumbers('all');
+            } catch (error) {
+                hideLoader('loaderDisponibles');
+                document.getElementById('numbersGrid').innerHTML = 
+                    '<p style="text-align:center;color:#dc3545;grid-column:1/-1;">Error al cargar los números</p>';
+            }
+        }
+
+        function renderNumbers(filter) {
+            const grid = document.getElementById('numbersGrid');
+            grid.innerHTML = '';
+
+            let filtered = allNumbersData;
+            if (filter === 'available') filtered = allNumbersData.filter(n => !n.taken);
+            if (filter === 'taken') filtered = allNumbersData.filter(n => n.taken);
+
+            filtered.forEach(n => {
+                const cell = document.createElement('div');
+                cell.className = `number-cell ${n.taken ? 'taken' : 'available'}`;
+                cell.textContent = n.num;
+                grid.appendChild(cell);
+            });
+        }
+
+        function filterNumbers(filter, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderNumbers(filter);
+        }
+
+        // UTILIDADES
+        function showLoader(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function hideLoader(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function hideResult(id) {
+            const el = document.getElementById(id);
+            el.className = 'result-box';
+            el.style.display = 'none';
+        }
+
+        function showResult(id, type, icon, title, message) {
+            const el = document.getElementById(id);
+            el.className = `result-box ${type}`;
+            el.innerHTML = `<strong>${icon} ${title}</strong><br><br>${message}`;
+            el.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
