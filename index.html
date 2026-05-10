@@ -410,7 +410,7 @@
                 <div class="menu-card" onclick="showSection('verDisponibles')">
                     <div class="icon"></div>
                     <h3>Números Disponibles</h3>
-                    <p>Ver todos los números disponibles y ocupados (1-500)</p>
+                    <p>Ver todos los números disponibles y ocupados (1-1000)</p>
                 </div>
             </div>
         </div>
@@ -440,7 +440,7 @@
             <div class="form-group">
                 <label for="regNumeros">Números Seleccionados *</label>
                 <input type="text" id="regNumeros" placeholder="Ej: 15, 23, 150">
-                <small>Separa los números con comas (ej: 15, 23, 150). Rango: 1-500</small>
+                <small>Separa los números con comas (ej: 15, 23, 150). Rango: 1-1000</small>
             </div>
 
             <button class="btn-primary" onclick="registrarParticipante()">
@@ -526,7 +526,7 @@
 
             <div class="form-group">
                 <label for="numeroBuscar">Número a Buscar</label>
-                <input type="number" id="numeroBuscar" placeholder="Ej: 42" min="1" max="500">
+                <input type="number" id="numeroBuscar" placeholder="Ej: 42" min="1" max="1000">
             </div>
 
             <button class="btn-primary" onclick="buscarPorNumero()">
@@ -638,8 +638,8 @@
             // Validar rango
             for (let num of numeros) {
                 const numInt = parseInt(num);
-                if (isNaN(numInt) || numInt < 1 || numInt > 500) {
-                    showResult('resultRegistro', 'error', '⚠️', 'Número inválido', `El número "${num}" no está en el rango válido (1-500).`);
+                if (isNaN(numInt) || numInt < 1 || numInt > 1000) {
+                     showResult('resultAgregarNumeros', 'error', '⚠️', 'Número inválido', `El número "${num}" no está en el rango válido (1-1000).`);
                     return;
                 }
             }
@@ -773,9 +773,8 @@
             // Validar rango
             for (let num of numeros) {
                 const numInt = parseInt(num);
-                if (isNaN(numInt) || numInt < 1 || numInt > 500) {
-                    showResult('resultAgregarNumeros', 'error', '⚠️', 'Número inválido', 
-                        `El número "${num}" no está en el rango válido (1-500).`);
+                if (isNaN(numInt) || numInt < 1 || numInt > 1000) {
+                   showResult('resultRegistro', 'error', '⚠️', 'Número inválido', `El número "${num}" no está en el rango válido (1-1000).`);
                     return;
                 }
             }
@@ -902,7 +901,7 @@
                 }
 
                 allNumbersData = [];
-                for (let i = 1; i <= 500; i++) {
+                for (let i = 1; i <= 1000; i++) {
                     allNumbersData.push({ num: i, taken: ocupados.has(i) });
                 }
 
